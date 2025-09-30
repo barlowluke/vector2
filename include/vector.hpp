@@ -20,32 +20,35 @@ public:
     
     //capacity - O(1)
     int capacity() const {
-        // ToDo return sz
+        return cap;
     }
 
     //elements stored
     int size() const {
-        // ToDo
+        return sz;
     }
     
     //return (sz == 0)
     //O(1)
     bool empty() const {
-        // ToDo 
+        if (sz == 0) {
+            return true;
+        }
+        return false;
     }
     
     //element at index when vector is const (unchecked)
     //return data[i] // no bounds check
     //O(1)
     const T& operator[](int i) const { 
-        // ToDo
+        return data[i];
     }
     
     //element at index when vector is non-const (unchecked)
     //return data[i] // no bounds check
     //O(1)
     T& operator[](int i) { 
-        // ToDo
+        return data[i];
     }
     
     // at function for const (checked)
@@ -53,7 +56,10 @@ public:
     //throw std::out_of_range("Invalid Index");
     //return data[i] after checking bounds
     const T& at(int i) const{
-        // ToDo
+        if (i < 0 || i >= sz) {
+            throw std::out_of_range("Invalid Index");
+        }
+        return data[i];
     }
     
     // at function for non const (checked)
@@ -61,35 +67,50 @@ public:
     //throw std::out_of_range("Invalid Index");
     //return data[i] after checking bounds
     T& at(int i){
-        // ToDo
+        if (i < 0 || i >= sz) {
+            throw std::out_of_range("Invalid Index");
+        }
+        return data[i];
     }
     
     // first element
     //throw std::out_of_range("front on empty Vector");
     //return data[0]
     const T& front() const { 
-        // ToDo
+        if (sz == 0) {
+            throw std::out_of_range("front on empty Vector");
+        }
+        return data[0];
     }
 
     // first element
     //throw std::out_of_range("front on empty Vector");
     //return data[0]
     T& front() {
-        // ToDo
+        if (sz == 0) {
+            throw std::out_of_range("front on empty Vector");
+        }
+        return data[0];
     }
     
     // last element
     //throw std::out_of_range("back on empty Vector");
     //return data[sz-1]
     const T& back() const { 
-        // ToDo
+        if (sz == 0) {
+            throw std::out_of_range("back on empty Vector");
+        }
+        return data[sz - 1];
     }
 
     // last element
     //throw std::out_of_range("back on empty Vector");
     //return data[sz-1]
     T& back() {
-        // ToDo
+        if (sz == 0) {
+            throw std::out_of_range("back on empty Vector");
+        }
+        return data[sz - 1];
     }
     
     // insert at end
@@ -99,7 +120,11 @@ public:
     //   sz++
     //Amortized O(1); worst-case O(n)
     void push_back(const T& elem){
-        // ToDo
+        if (sz == cap) {
+            reserve(std::max(1, 2 * cap));
+    }
+        data[sz] = elem;
+        sz++;
     }
 
     // remove from end
@@ -108,7 +133,11 @@ public:
     //   shrink()
     // O(1) (shrink can be O(n) when it triggers)
     void pop_back() { 
-        // ToDo
+        if (sz == 0) {
+            throw std::out_of_range("remove on empty Vector");
+        }
+        sz--;
+        shrink();
     }
 
     // insert at index
@@ -119,7 +148,17 @@ public:
     //   sz++
     // Complexity: O(n-i) moves + possible O(n) reallocation
     void insert(int i, const T& elem){
-        // ToDo
+        if (i < 0 || i > sz) {
+            throw std::out_of_range("Invalid index");
+        }
+        if (sz == cap) {
+            reserve(std::max(1, 2 * cap));
+        }
+        for (int k = sz - 1; k >= i; k--) {
+            data[k + 1] = data[k];
+        }
+        data[i] = elem;
+        sz++;
     }
 
     // removes at index
@@ -129,7 +168,14 @@ public:
     //   shrink()
     // Complexity: O(n-i) moves; shrink may reallocate O(n)
     void erase(int i){
-        // ToDo
+        if (i < 0 || i >= sz) {
+            throw std::out_of_range("Invalid index");
+        }
+        for (int k = i + 1; i < sz; k++) {
+            data[k - 1] = data[k];
+        }
+        sz--;
+        shrink();
     }
 
     //capacity >= minimum
@@ -137,7 +183,15 @@ public:
     // create new array and move elements
     // O(n) when reallocation else O(1)
     void reserve(int minimum){
-        // ToDo
+        if (cap >= minimum) {
+            T* new_array = new T[minimum];
+            for (int k = 0; k < sz; k++) {
+                new_array[k] = data[k];
+            }
+            delete[] data;
+            data = new_array;
+            cap = minimum;
+        }
     }
 
     // nested iterator class
@@ -156,46 +210,52 @@ public:
 
             //return this->vec->[this->ind];
             T& operator*() const {
-                // ToDo
+                return this->vec[this->ind];
             }
 
             // return address of this->vec->[this->ind];
             T* operator->() const { 
-                // ToDo
+                return &this->vec[this->ind];
             }
 
             //pre increment overloaded without param
             //ind++; return *this
             iterator& operator++(){
-                // ToDo
+                ind++;
+                return *this;
             }
 
             //post increment overloaded with parameter
             //old=*this; ind++; return old
             iterator operator++(int){ 
-                // ToDo
+                T old = *this;
+                ind++;
+                return old;
             }
 
             //pre decrementr overloaded without param
             //ind--; return *this
             iterator& operator--(){
-                // ToDo
+                ind--;
+                return *this;
             }
             
             //post decrement overloaded with parameter
             //old=*this; ind--; return old
             iterator operator--(int){
-                // ToDo
+                T old = *this;
+                ind--;
+                return old;
             }
 
             //return vec==rhs.vec && ind==rhs.ind
             bool operator==(iterator rhs) const{
-                // ToDo
+                return (vec == rhs.vec) && (ind == rhs.ind);
             }
 
             //return !(*this == rhs)
             bool operator!=(iterator rhs) const{
-                // ToDo
+                return !(*this == rhs);
             }
     };
 
@@ -212,46 +272,52 @@ public:
 
             //return vec->data[ind]
             const T& operator*() const { 
-                // ToDo
+                return vec->data[ind];
             }
             
             //return &vec->data[ind]
             const T* operator->() const { 
-                // ToDo
+                return &vec->data[ind];
             }
 
             //pre
             //ind++; return *this
             const_iterator& operator++(){
-                // ToDo
+                ind++;
+                return *this;
             }
 
             //post
             //old=*this; ind++; return old
             const_iterator operator++(int){
-                // ToDo
+                T old = *this;
+                ind++;
+                return old;
             }
 
             //pre
             //ind--; return *this
             const_iterator& operator--(){
-                // ToDo
+                ind--;
+                return *this;
             }
 
             //post
             //old=*this; ind--; return old
             const_iterator operator--(int){
-                // ToDo
+                T old = *this;
+                ind--;
+                return old;
             }
 
             //return vec==rhs.vec && ind==rhs.ind
             bool operator==(const_iterator rhs) const{
-                // ToDo
+                return (vec == rhs.vec) && (ind == rhs.ind);
             }
 
             //return !(*this == rhs)
             bool operator!=(const_iterator rhs) const{
-                // ToDo
+                return !(*this == rhs);
             }
     };
 public:
@@ -259,34 +325,36 @@ public:
     
     //return iterator(this, 0)
     iterator begin(){
-        // ToDo
+        return iterator(this, 0);
     }
 
     //return iterator(this, sz)
     iterator end(){
-        // ToDo
+        return iterator(this, sz);
     }
 
     //return const_iterator(this, 0)
     const_iterator begin() const{
-        // ToDo
+        return const_iterator(this, 0);
     }
 
     //return const_iterator(this, sz)
     const_iterator end() const{
-        // ToDo
+        return const_iterator(this, sz);
     }
 
     // Inserts an element immediately before iterator position
     //insert(it.ind, elem); return it;
     iterator insert(iterator it, const T& elem){
-        // ToDo
+        insert(it.ind, elem);
+        return it;
     }
 
     // Removes the element at the given iterator position
     //erase(it.ind); return it;
     iterator erase(iterator it){
-        // ToDo
+        erase(it.ind);
+        return it;
     }
     
 
@@ -296,13 +364,26 @@ public:
         //if cap==0: data=nullptr
         //else: data=new T[cap]; copy [0..sz)
         void clone(const Vector& other){
-            // ToDo
+            sz = other.sz;
+            cap = other.cap;
+            if (cap == 0) {
+                data = nullptr;
+            } else {
+                data = new T[cap];
+                for (int k = 0; k < sz; k++) {
+                    data[k] = other[k];
+                }
+            }
         }
 
         // move other's pointers/sizes into this
         // reset other to empty state
         void transfer(Vector& other){
-            // ToDo
+            this->sz = other.sz;
+            this->cap = other.cap;
+            for (int i = 0; i < this->sz; i++) {
+                this->data[i] = other[i];
+            }
         }
 
     public:
@@ -338,16 +419,31 @@ public:
     // additional assignment functions
     // Reallocate storage to exactly new_cap (>= sz), moving elements.
     void reallocate(int new_cap){ // optional helper
-        // ToDo
+        if (new_cap == cap) {
+            return;
+        }
+        T* temp = new T[new_cap];
+        for (int k = 0; k < sz; k++) {
+            temp[k] = data[k];
+        }
+        delete[] data;
+        data = temp;
+        cap = new_cap;
     }
 
     void shrink(){
-        // ToDo
+        if (cap > 0 && sz <= cap / 4) {
+            int new_cap = std::max(1, cap / 2);
+            reallocate(new_cap);
+        }
     }
     
     // explicitly reduce the cap to sz and keep at least 1 slot
     void shrink_to_fit(){
-        // ToDo
+        if (cap > sz) {
+            int new_cap = std::max(1, sz);
+            reallocate(new_cap);
+        }
     }
 
 }; //end class Vector
