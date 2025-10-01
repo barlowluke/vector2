@@ -1,4 +1,3 @@
-//include/matrix.hpp
 #pragma once
 
 #include "vector.hpp"
@@ -28,14 +27,19 @@ public:
         if (r < 0 || c < 0) {
             throw std::out_of_range("Negative dimensions");
         }
-        int rows = r;
-        int cols = c;
-        for (int i = 0; i < rows - 1; i++) {
+        rows = r;
+        cols = c;
+
+        // use reserve for efficiency
+        data.reserve(rows);
+
+        for (int i = 0; i < rows; i++) {
             dsa::Vector<int> row_vec;
-            for (int j = 0; j < cols - 1; j++) {
-                row_vec[j] = 0;
+            row_vec.reserve(cols);
+            for (int j = 0; j < cols; j++) {
+                row_vec.push_back(0);
             }
-            data[i] = row_vec;
+            data.push_back(row_vec);
         }
     }
 
@@ -47,13 +51,13 @@ public:
     // throw std::out_of_range("dimensions must match")
     // result(i, j) = (*this)(i, j) + other(i, j)
     Matrix operator+(Matrix& other) {
-        if (this->rows != other.rows || this->cols != other.cols) {
+        if (rows != other.rows || cols != other.cols) {
             throw std::out_of_range("Dimensions must match");
         }
-        Matrix result(this->rows, this->cols);
-        for (int i = 0; i < this->rows; i++) {
-            for (int j = 0; j < this->cols; j++) {
-                result[i][j] = *this[i][j] + other[i][j];
+        Matrix result(rows, cols);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                result(i, j) = (*this)(i, j) + other(i, j);
             }
         }
         return result; // think why - ans for chaining

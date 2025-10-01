@@ -122,7 +122,7 @@ public:
     void push_back(const T& elem){
         if (sz == cap) {
             reserve(std::max(1, 2 * cap));
-    }
+        }
         data[sz] = elem;
         sz++;
     }
@@ -171,7 +171,7 @@ public:
         if (i < 0 || i >= sz) {
             throw std::out_of_range("Invalid index");
         }
-        for (int k = i + 1; i < sz; k++) {
+        for (int k = i + 1; k < sz; k++) {
             data[k - 1] = data[k];
         }
         sz--;
@@ -183,10 +183,10 @@ public:
     // create new array and move elements
     // O(n) when reallocation else O(1)
     void reserve(int minimum){
-        if (cap >= minimum) {
+        if (cap < minimum) {
             T* new_array = new T[minimum];
             for (int k = 0; k < sz; k++) {
-                new_array[k] = data[k];
+                new_array[k] = std::move(data[k]);
             }
             delete[] data;
             data = new_array;
@@ -210,12 +210,12 @@ public:
 
             //return this->vec->[this->ind];
             T& operator*() const {
-                return this->vec[this->ind];
+                return vec->data[ind];
             }
 
             // return address of this->vec->[this->ind];
             T* operator->() const { 
-                return &this->vec[this->ind];
+                return &(vec->data[ind]);
             }
 
             //pre increment overloaded without param
@@ -228,7 +228,7 @@ public:
             //post increment overloaded with parameter
             //old=*this; ind++; return old
             iterator operator++(int){ 
-                T old = *this;
+                iterator old = *this;
                 ind++;
                 return old;
             }
@@ -243,7 +243,7 @@ public:
             //post decrement overloaded with parameter
             //old=*this; ind--; return old
             iterator operator--(int){
-                T old = *this;
+                iterator old = *this;
                 ind--;
                 return old;
             }
@@ -277,7 +277,7 @@ public:
             
             //return &vec->data[ind]
             const T* operator->() const { 
-                return &vec->data[ind];
+                return &(vec->data[ind]);
             }
 
             //pre
@@ -290,7 +290,7 @@ public:
             //post
             //old=*this; ind++; return old
             const_iterator operator++(int){
-                T old = *this;
+                const_iterator old = *this;
                 ind++;
                 return old;
             }
@@ -305,7 +305,7 @@ public:
             //post
             //old=*this; ind--; return old
             const_iterator operator--(int){
-                T old = *this;
+                iterator old = *this;
                 ind--;
                 return old;
             }
@@ -379,11 +379,13 @@ public:
         // move other's pointers/sizes into this
         // reset other to empty state
         void transfer(Vector& other){
-            this->sz = other.sz;
-            this->cap = other.cap;
-            for (int i = 0; i < this->sz; i++) {
-                this->data[i] = other[i];
-            }
+            sz = other.sz;
+            cap = other.cap;
+            data = other.data;
+
+            other.sz = 0;
+            other.cap = 0;
+            other.data = nullptr;
         }
 
     public:
@@ -396,6 +398,10 @@ public:
         Vector& operator=(const Vector& other){
             // nothing to be done if self-assignment
             // else deallocate previous and clone
+            if (this != &other) {
+                delete[] data;
+                clone(other);
+            }
             return *this;
         }
 
@@ -408,6 +414,15 @@ public:
         Vector& operator=(Vector&& other){
             // nothing to be done if self-assignment
             // else deallocate previous and transfer
+            if (this != &other) {
+                delete[] data;
+                sz = other.sz;
+                cap = other.cap;
+                data = other.data;
+                other.sz = 0;
+                other.cap = 0;
+                other.data = nullptr;
+            }
             return *this;
         }
 
