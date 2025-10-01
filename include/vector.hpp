@@ -371,7 +371,7 @@ public:
             } else {
                 data = new T[cap];
                 for (int k = 0; k < sz; k++) {
-                    data[k] = other[k];
+                    data[k] = other.data[k];
                 }
             }
         }
