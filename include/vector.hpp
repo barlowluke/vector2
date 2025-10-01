@@ -305,7 +305,7 @@ public:
             //post
             //old=*this; ind--; return old
             const_iterator operator--(int){
-                iterator old = *this;
+                const_iterator old = *this;
                 ind--;
                 return old;
             }
